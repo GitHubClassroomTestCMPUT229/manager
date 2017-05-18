@@ -304,6 +304,28 @@ class Manager():
         url = url[:url.find("://")+3] + token + ":x-oauth-basic@" + url[url.find("github"):]
         return url
 
+def defaults():
+    try:
+        f = open("./class/defaults.json", "r")
+        defaults = json.load(f)
+        f.close()   
+        return defaults
+    except:
+        return None
+
+def update(field, new_value):
+    try:
+        f = open("./class/defaults.json", "r")
+        defaults = json.load(f)
+        f.close()
+        defaults[field] = new_value
+        f = open("./class/defaults.json", "w")
+        json.dump(defaults, f)
+        return
+    except:
+        return
+    
+
 # flags:    -o <organization_name>: set organization name
 #           -r <repo_name>: set repo for script
 #           -t: set teams for the organization locally              (Set [t]eams)
@@ -312,13 +334,19 @@ class Manager():
 #           -x: clear local repos (-r <assignment
 #           -X: clear teams & repos on GitHub
 def main():
-    # Default params
-    org_name = "GitHubClassroomTestCMPUT229"
-    repo_name = "testlab1"
+    org_name = ""
+    repo_name = ""
     args = sys.argv
 
     if "-o" in args:
         org_name = args[args.index("-o")+1]     # Set org name
+        update("org", org_name)
+    else:
+        if defaults():
+            org_name = defaults()["org"]
+        else:
+            return 1
+
     m = Manager(org_name)
 
     if "-t" in args:
@@ -328,6 +356,12 @@ def main():
 
     if "-r" in args:
         repo_name = args[args.index("-r")+1]    # Set lab name
+        update("repo", repo_name)
+    else:
+        if defaults():
+            org_name = defaults()["repo"]
+        else:
+            return 1
     
     if "-s" in args:
         m.set_repos(repo_name)                  # Set github repos
