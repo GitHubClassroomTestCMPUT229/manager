@@ -6,7 +6,7 @@ See the [wiki](https://github.com/GitHubClassroomTestCMPUT229/manager/wiki) for 
 
 ## Setup
 
-* Clone this reop.
+* Clone this repo.
 * Navigate to the directory that contains the manager.
 * Run setup.sh.
     * Initializes a Python virtual environment in the folder /venv/
