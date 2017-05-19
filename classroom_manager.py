@@ -175,7 +175,7 @@ class Manager():
     #   To iterate over all the teams for the CMPUT229 GitHub organization and
     #   assign each team a clone of the repo containing the base code.
     def set_repos(self, lab="testlab1"):
-        print "Setting repos."
+        print "Setting repos for {}.".format(lab)
         teams = self.org.get_teams()
 
         repos = {}
@@ -360,7 +360,8 @@ def main():
         update("repo", repo_name)
     else:
         if defaults():
-            org_name = defaults()["repo"]
+            print defaults()["repo"]
+            repo_name = defaults()["repo"]
         else:
             return 1
     
