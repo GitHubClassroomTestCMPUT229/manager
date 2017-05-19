@@ -107,7 +107,8 @@ class Manager():
             if t[j] == "team:":
                 j += 1
                 while t[j] != "team:":
-                    team.append(t[j])
+                    if t[j] != "":
+                        team.append(t[j])
                     j += 1
                     if j == len(t):
                         break
