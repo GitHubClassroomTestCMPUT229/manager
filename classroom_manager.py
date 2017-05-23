@@ -285,6 +285,8 @@ class Manager():
     def local_clone(self, lab):
         token = self.get_token()
         url = self.url+lab
+        if os.path.exists("./base/"):
+            shutil.rmtree("./base/")
         base_repo = Repo.clone_from(self.insert_auth(url), "./base/")
         return base_repo, url
 
@@ -339,8 +341,27 @@ def main():
     repo_name = ""
     args = sys.argv
 
+    if "-h" in args:
+        print """--------------------------------------------------------------------
+This is a list of flags on the command-line:
+
+-o <organization_name>: set organization name
+-r <repo_name>: set repo for script
+-t: set teams for the organization locally              (Set [t]eams)
+-s: distribute base repo (-r <repo>) to teams on GitHub ([S]et repos)
+-g: collect repos (-r <base_repo>) from students        ([G]et repos)
+-x: clear local repos (-r <assignment
+-X: clear teams & repos on GitHub
+--------------------------------------------------------------------
+"""
+
     if "-o" in args:
-        org_name = args[args.index("-o")+1]     # Set org name
+        i = args.index("-o")+1
+        org_name = args[i]
+        i += 1
+        while i < len(args) and args[i][0] != "-":
+            org_name += " {}".format(args[i])     # Set org name
+            i += 1
         update("org", org_name)
     else:
         if defaults():
@@ -360,7 +381,6 @@ def main():
         update("repo", repo_name)
     else:
         if defaults():
-            print defaults()["repo"]
             repo_name = defaults()["repo"]
         else:
             return 1
@@ -378,7 +398,7 @@ def main():
             m.del_local_repos(repo_name)        # remove local repos
 
     if "-X" in args:
-        print "THIS WILL CLEAR ALL REPOS & TEAMS FROM GitHub."
+        print "THIS WILL CLEAR ALL TEAM REPOS & TEAMS FROM GitHub."
         confirm = (raw_input("Are you sure? [y/n]: ")[0].lower() == 'y')
         if confirm:
             m.del_git_repos()                   # remove remote repos
