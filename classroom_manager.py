@@ -113,6 +113,9 @@ class Manager():
         json.dump(teams, out)
         out.close()
 
+    # Purpose:
+    #   Write the team defs as csv
+    #   Format: <team>,<member>\n
     def json_to_csv(self):
         f = open("./class/team_defs.json", "r")
         teams = json.load(f)
@@ -124,6 +127,9 @@ class Manager():
                 out.write("{},{}\n".format(team,member))
         out.close()
 
+    # Purpose:
+    #   Write the team defs as csv
+    #   Format: <team>,<member>\n
     def git_to_csv(self):
         out = open("./class/team_defs.csv", "w")
         teams = self.get_git_teams()
@@ -156,6 +162,8 @@ class Manager():
             for member in teams[team]:
                 t.add_to_members(self.hub.get_user(member))
     
+    # Purpose:
+    #   Gets the PyGitHub teams
     def get_git_teams(self):
         results = [team for team in self.org.get_teams()]
         return results
@@ -221,6 +229,12 @@ class Manager():
                         print "Error cloning lab for " + team.name
                         print e
 
+    # Param:
+    #   lab: String
+    # Purpose:
+    #   Gather all repos from all teams matching the lab
+    #   Used to collect assignments
+    #   Used to get local copies to submit to moss
     def get_repos(self, lab):
         print "Getting repos from GitHub."
         teams = self.get_git_teams()
@@ -239,17 +253,31 @@ class Manager():
             shutil.rmtree(base_path)
         Repo.clone_from(self.insert_auth(base_url), base_path)
 
+    # Param:
+    #   lab: String lab
+    # Purpose:
+    #   to iterate over all students by team in order to notify them
+    #   that the lab has been assigned.
     def notify_all(self, lab):
         for team in self.org.get_teams():
             if team.name != "Students":
                 for member in team.get_members():
                     self.notify(member, team, lab)
 
+    # Param:
+    #   member: PyGitHub member
+    #   team:   PyGitHub team
+    #   lab:    String
+    # Purpose:
+    #   Send an email to each member of a team to notify them that their
+    #   repo has been assigned.
     def notify(self, member, team, lab):
         # TODO: Send an email to the github email.
-        email = member.email
-        print email
 
+    # Param:
+    #   Lab: Which lab/assignment will be deleted
+    # Purpose:
+    #   Deletes local files for lab
     def del_local_repos(self, lab="testlab1"):
         clone_path = "./{}/".format(lab)
         if os.path.exists(clone_path):
@@ -331,6 +359,8 @@ class Manager():
         url = url[:url.find("://")+3] + token + ":x-oauth-basic@" + url[url.find("github"):]
         return url
 
+# Purpose:
+#   Returns a dictionary used to represent default values for the manager to use.
 def defaults():
     try:
         f = open("./class/defaults.json", "r")
@@ -340,6 +370,11 @@ def defaults():
     except:
         return None
 
+# Param:
+#   field: field in defaults.json to be update.
+#   new_value: the value to overwrite where the field is.
+# Purpose:
+#   Updates the default values used for the manager to the most-recently used ones.
 def update(field, new_value):
     try:
         f = open("./class/defaults.json", "r")
@@ -418,7 +453,7 @@ This is a list of flags on the command-line:
             if args[end][0] == "-":
                 break
             end += 1
-        members = args[start:end]
+        members = args[start:end]               # set members
         args = args[:start-2] + args[end:]
         m.add_members(team, members)
 
@@ -431,7 +466,7 @@ This is a list of flags on the command-line:
                 break
             end += 1
         members = args[start:end]
-        args = args[:start-2] + args[end:]
+        args = args[:start-2] + args[end:]      # set members
         m.del_members(team, members)
 
     if "-r" in args:
