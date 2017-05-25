@@ -412,17 +412,19 @@ This is a list of flags on the command-line:
                 break
             end += 1
         members = args[start:end]
+        args = args[:start-2] + args[end:]
         m.add_members(team, members)
 
     if "-d" in args:
         team = args[args.index("-d")+1]
-        start = args.index("-a")+2
+        start = args.index("-d")+2
         end = start
         while end < len(args):
             if args[end][0] == "-":
                 break
             end += 1
         members = args[start:end]
+        args = args[:start-2] + args[end:]
         m.del_members(team, members)
 
     if "-r" in args:
