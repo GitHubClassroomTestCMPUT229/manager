@@ -46,12 +46,6 @@ class Manager():
         print self.hub
         return self.hub.get_organization(self.name)
 
-    @staticmethod
-    def get_teams():
-        f = open("./class/teams.json")
-        teams = json.load(f)
-        return teams
-
     # Params:
     #   hub: PyGitHub github object
     #   org: PyGitHub organization object
@@ -138,8 +132,6 @@ class Manager():
             for member in members:
                 out.write("{},{}\n".format(team.name,member.login))
         out.close()
-            
-        
 
     # Params:
     #   hub: PyGitHub github object
@@ -167,6 +159,28 @@ class Manager():
     def get_git_teams(self):
         results = [team for team in self.org.get_teams()]
         return results
+
+    # Param:
+    #   team: name of a team on GitHub
+    #   member: name of a member of the organization
+    # Purpose:
+    #   Add member to team
+    def add_members(self, team, members):
+        teams = {t.name: t.id for t in self.org.get_teams()}
+        team = self.org.get_team(teams[team])
+        for member in members:
+            team.add_to_members(self.hub.get_user(member))
+
+    # Param:
+    #   team: name of a team on GitHub
+    #   member: name of a member of the organization
+    # Purpose:
+    #   Remove member from team
+    def del_members(self, team, members):
+        teams = {t.name: t.id for t in self.org.get_teams()}
+        team = self.org.get_team(teams[team])
+        for member in members:
+            team.remove_from_members(self.hub.get_user(member))
 
     # Param:
     #   org: PyGitHub organization object
@@ -225,6 +239,16 @@ class Manager():
             shutil.rmtree(base_path)
         Repo.clone_from(self.insert_auth(base_url), base_path)
 
+    def notify_all(self, lab):
+        for team in self.org.get_teams():
+            if team.name != "Students":
+                for member in team.get_members():
+                    self.notify(member, team, lab)
+
+    def notify(self, member, team, lab):
+        # TODO: Send an email to the github email.
+        email = member.email
+        print email
 
     def del_local_repos(self, lab="testlab1"):
         clone_path = "./{}/".format(lab)
@@ -345,12 +369,15 @@ def main():
         print """--------------------------------------------------------------------
 This is a list of flags on the command-line:
 
--o <organization_name>: set organization name
--r <repo_name>: set repo for script
--t: set teams for the organization locally              (Set [t]eams)
--s: distribute base repo (-r <repo>) to teams on GitHub ([S]et repos)
--g: collect repos (-r <base_repo>) from students        ([G]et repos)
--x: clear local repos (-r <assignment
+-o <organization_name>: set organization name           ([o]rg set)
+-r <repo_name>: set repo for script                     ([r]epo set)
+-t: set teams for the organization locally              ([t]eams set)
+-a <team_name> <member>: Add <member> to <team>         ([a]dd member)
+-d <team_name> <member>: delete <member> from <team>    ([d]emove member)
+-s: distribute base repo (-r <repo>) to teams on GitHub ([s]et repos)
+-n: notify students of repo distribution                ([n]otify)
+-g: collect repos (-r <base_repo>) from students        ([g]et repos)
+-x: clear local repos (-r <assignment>)
 -X: clear teams & repos on GitHub
 --------------------------------------------------------------------
 """
@@ -376,6 +403,28 @@ This is a list of flags on the command-line:
         m.set_git_teams()                       # remote
         m.git_to_csv()                          # setup csv for teams
 
+    if "-a" in args:
+        team = args[args.index("-a")+1]
+        start = args.index("-a")+2
+        end = start
+        while end < len(args):
+            if args[end][0] == "-":
+                break
+            end += 1
+        members = args[start:end]
+        m.add_members(team, members)
+
+    if "-d" in args:
+        team = args[args.index("-d")+1]
+        start = args.index("-a")+2
+        end = start
+        while end < len(args):
+            if args[end][0] == "-":
+                break
+            end += 1
+        members = args[start:end]
+        m.del_members(team, members)
+
     if "-r" in args:
         repo_name = args[args.index("-r")+1]    # Set lab name
         update("repo", repo_name)
@@ -388,6 +437,9 @@ This is a list of flags on the command-line:
     if "-s" in args:
         m.set_repos(repo_name)                  # Set github repos
     
+    if "-n" in args:
+        m.notify_all(repo_name)
+
     if "-g" in args:
         m.get_repos(repo_name)                  # get github repos
 
