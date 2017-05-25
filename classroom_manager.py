@@ -353,13 +353,20 @@ def update(field, new_value):
         return
     
 
-# flags:    -o <organization_name>: set organization name
-#           -r <repo_name>: set repo for script
-#           -t: set teams for the organization locally              (Set [t]eams)
-#           -s: distribute base repo (-r <repo>) to teams on GitHub ([S]et repos)
-#           -g: collect repos (-r <base_repo>) from students        ([G]et repos)
-#           -x: clear local repos (-r <assignment
-#           -X: clear teams & repos on GitHub
+# flags:    
+'''
+-o <organization_name>: set organization name           ([o]rg set)
+-r <repo_name>: set repo for script                     ([r]epo set)
+-t: set teams for the organization locally              ([t]eams set)
+-a <team_name> <member>: Add <member> to <team>         ([a]dd member)
+-d <team_name> <member>: delete <member> from <team>    ([d]emove member)
+-s: distribute base repo (-r <repo>) to teams on GitHub ([s]et repos)
+-n: notify students of repo distribution                ([n]otify)
+-g: collect repos (-r <base_repo>) from students        ([g]et repos)
+-x: clear local repos (-r <assignment>)
+-X: clear teams & repos on GitHub
+'''
+
 def main():
     org_name = ""
     repo_name = ""
