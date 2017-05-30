@@ -359,12 +359,13 @@ class Manager():
         url = url[:url.find("://")+3] + token + ":x-oauth-basic@" + url[url.find("github"):]
         return url
     
+    # https://docs.python.org/2/library/datetime.html#strftime-strptime-behavior
     def get_commits(self, team, lab):
         name = "{}_{}".format(team, lab)
         repo = self.org.get_repo(name)
         commits = [c for c in repo.get_commits()]
-        for c in commits:
-            print "{}: {}".format(c.commit.author.name, c.commit.author.date)
+        commits.sort(key=lambda c: time.strptime(str(c.commit.author.date), "%Y-%m-%d %H:%M:%S"))
+        return commits
 
     def get_deadline(self, lab):
         deadlines_file = open("./class/deadlines.csv", "r")
@@ -374,8 +375,22 @@ class Manager():
         deadlines = {}
         for line in d:
             l, date = line.split(",")
-            deadlines[l] = date
-        return deadlines[lab]
+            deadlines[l] = date.strip()
+        return time.strptime(deadlines[lab], "%Y-%m-%d %H:%M:%S")
+
+    def get_repo_by_deadline(self, team, lab):
+        deadline = self.get_deadline(lab)
+        commits = self.get_commits(team, lab)
+        commit = commits[0]
+
+        for c in commits[1:]:
+            date = time.strptime(str(c.commit.author.date), "%Y-%m-%d %H:%M:%S")
+            if date <= deadline:
+                commit = c
+            else:
+                break
+
+        return commit
 
 # Purpose:
 #   Returns a dictionary used to represent default values for the manager to use.
@@ -499,6 +514,7 @@ This is a list of flags on the command-line:
     
     m.get_commits("team0", "lab0.0")
     m.get_deadline("lab0.0")
+    print m.get_repo_by_deadline("team0", "lab0.0").commit.author.date
     return
 
     if "-s" in args:
