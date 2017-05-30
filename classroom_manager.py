@@ -366,6 +366,17 @@ class Manager():
         for c in commits:
             print "{}: {}".format(c.commit.author.name, c.commit.author.date)
 
+    def get_deadline(self, lab):
+        deadlines_file = open("./class/deadlines.csv", "r")
+        d = deadlines_file.readlines()
+        deadlines_file.close()
+
+        deadlines = {}
+        for line in d:
+            l, date = line.split(",")
+            deadlines[l] = date
+        return deadlines[lab]
+
 # Purpose:
 #   Returns a dictionary used to represent default values for the manager to use.
 def defaults():
@@ -487,6 +498,7 @@ This is a list of flags on the command-line:
             return 1
     
     m.get_commits("team0", "lab0.0")
+    m.get_deadline("lab0.0")
     return
 
     if "-s" in args:
