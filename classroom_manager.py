@@ -273,7 +273,7 @@ class Manager():
     #   repo has been assigned.
     def notify(self, member, team, lab):
         # TODO: Send an email to the github email.
-
+        pass
     # Param:
     #   Lab: Which lab/assignment will be deleted
     # Purpose:
@@ -358,6 +358,13 @@ class Manager():
         token = self.get_token()
         url = url[:url.find("://")+3] + token + ":x-oauth-basic@" + url[url.find("github"):]
         return url
+    
+    def get_commits(self, team, lab):
+        name = "{}_{}".format(team, lab)
+        repo = self.org.get_repo(name)
+        commits = [c for c in repo.get_commits()]
+        for c in commits:
+            print "{}: {}".format(c.commit.author.name, c.commit.author.date)
 
 # Purpose:
 #   Returns a dictionary used to represent default values for the manager to use.
@@ -386,7 +393,8 @@ def update(field, new_value):
         return
     except:
         return
-    
+
+
 
 # flags:    
 '''
@@ -478,6 +486,9 @@ This is a list of flags on the command-line:
         else:
             return 1
     
+    m.get_commits("team0", "lab0.0")
+    return
+
     if "-s" in args:
         m.set_repos(repo_name)                  # Set github repos
     
